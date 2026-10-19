@@ -5,7 +5,7 @@ from flask_restful import Api
 
 from extensions import bcrypt, db, migrate
 from resources.auth import CheckSession, Login, Logout, Signup
-
+from resources.notes import NoteDetail, NoteList
 
 def create_app(database_uri="sqlite:///app.db"):
     app = Flask(__name__)
@@ -23,6 +23,8 @@ def create_app(database_uri="sqlite:///app.db"):
     api.add_resource(Login, "/login")
     api.add_resource(CheckSession, "/check_session")
     api.add_resource(Logout, "/logout")
+    api.add_resource(NoteList, "/notes")
+    api.add_resource(NoteDetail, "/notes/<int:id>")
 
     return app
 

@@ -11,6 +11,8 @@ class User(db.Model):
     username = db.Column(db.String(30), unique=True, nullable=False)
     _password_hash = db.Column(db.String(128), nullable=False)
 
+    notes = db.relationship("Note", back_populates="user", cascade="all, delete-orphan")
+
     @hybrid_property
     def password_hash(self):
         """The hash is never readable from outside the model."""
@@ -32,3 +34,33 @@ class User(db.Model):
 
     def __repr__(self):
         return f"<User {self.id} {self.username}>"
+
+
+class Note(db.Model):
+    __tablename__ = "notes"
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    pinned = db.Column(db.Boolean, nullable=False, default=False)
+    created_at = db.Column(db.DateTime, nullable=False, server_default=db.func.now())
+    updated_at = db.Column(db.DateTime, nullable=False, server_default=db.func.now(), onupdate=db.func.now())
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+
+    user = db.relationship("User", back_populates="notes")
+
+    @validates("title")
+    def validate_title(self, key, title):
+        title = (title or "").strip()
+        if not 1 <= len(title) <= 100:
+            raise ValueError("Title must be between 1 and 100 characters.")
+        return title
+
+    @validates("content")
+    def validate_content(self, key, content):
+        if not content or not content.strip():
+            raise ValueError("Content cannot be empty.")
+        return content
+
+    def __repr__(self):
+        return f"<Note {self.id} {self.title}>"

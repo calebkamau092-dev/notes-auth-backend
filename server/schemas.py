@@ -17,8 +17,20 @@ class SignupSchema(Schema):
             raise ValidationError("Passwords do not match.", "password_confirmation")
 
 
+class NoteSchema(Schema):
+    id = fields.Int(dump_only=True)
+    title = fields.Str(required=True, validate=validate.Length(min=1, max=100))
+    content = fields.Str(required=True, validate=validate.Length(min=1))
+    pinned = fields.Bool(load_default=False)
+    created_at = fields.DateTime(dump_only=True)
+    updated_at = fields.DateTime(dump_only=True)
+    user_id = fields.Int(dump_only=True)
+
+
 user_schema = UserSchema()
 signup_schema = SignupSchema()
+note_schema = NoteSchema()
+notes_schema = NoteSchema(many=True)
 
 
 def error_list(messages):
